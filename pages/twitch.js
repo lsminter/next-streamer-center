@@ -117,14 +117,13 @@ function TwitchApp() {
 
   console.log(accessToken)
 
-  useSWR('api/twitch')
-
+  
   useEffect(() => {
     if (!accessToken) {
       handleAuthentication(window.location, twitchAuth, handleToken)
     }
   }, [accessToken])
-
+  
   async function getData(url, accessToken) {
     //look into axios possibly (*side project*)
     console.log(accessToken, url)
@@ -136,9 +135,18 @@ function TwitchApp() {
     })
     return response.json()
   }
-
+  
   let id = insertUsername(USER_NAME, username)
   const loadUserId = isUndefined(accessToken) ? null : [id, accessToken]
+  let fetchApi = async (url, accessToken) => {
+    const response = await fetch(url, {
+      body: JSON.stringify({accessToken})
+    })
+    return response.json()
+  }
+  let loadApiKey = isUndefined(accessToken) ? null : ['api/twitch', accessToken]
+  console.log(loadApiKey)
+  useSWR(loadApiKey, fetchApi)
   const {data: currentUser} = useSWR(loadUserId, getData)
   // useSWR actually uses useEffect. It's a wrapper that allows you access OUTSIDE of react, our HTTP requests.
   const streamIds =
